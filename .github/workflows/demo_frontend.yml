@@ -1,0 +1,89 @@
+name: "Docker Build and Push Image for Algofabric Dashboard"
+# The workflow will be triggered when there is a push event to the repository, and the push is targeted at either the "master" branch or the "development" branch.
+on:
+  push:
+    branches:
+      - "master"
+      - "development"
+   
+jobs:
+  algofabric-dashboard:
+    runs-on: ubuntu-latest
+  # Allows the workflow to access the source code in the repository. 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+# Sets up the Node.js environment with the specified version
+      - name: Setup Node lts/*
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.14.2
+
+
+# Checks if the branch name (or ref name) contains the word "master." If the condition is true, the steps defined within the run block will be executed.
+      - name: 'npm install, build, and test - master'
+        if: ${{ contains(github.ref_name, 'master') }}
+        env:
+          CI: false
+        run: |
+          npm install
+          npm run build
+
+      # Do we need a branch segregation for this step?
+      - name: 'npm install, build, and test - development'
+        if: ${{ contains(github.ref_name, 'development') }}
+        # env:
+        #   CI: false
+        run: |
+          npm install
+          npm run build
+
+  
+
+      - name: Configure AWS Credentials - master
+        if: ${{ contains(github.ref_name, 'master') }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Configure AWS Credentials - development
+        if: ${{ contains(github.ref_name, 'development') }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY_DEV }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+
+
+      - name: Exclude JSON folder
+        run: |
+          rm -rf build/Json/
+
+
+
+      - name: Upload to S3 - master
+        if: ${{ contains(github.ref_name, 'master') }}
+        run: |
+          aws s3 sync build s3://${{ secrets.S3_BUCKET_NAME }}
+
+      - name: Upload to S3 - development
+        if: ${{ contains(github.ref_name, 'development') }}
+        run: |
+          aws s3 sync build s3://${{ secrets.S3_BUCKET_NAME_DEV }}
+          
+
+
+      - name: Invalidate CloudFront distribution - master
+        if: ${{ contains(github.ref_name, 'master') }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/assets/*" "/asset-manifest.json" "/favicon.png" "/index.html" "/manifest.json" "/robots.txt" "/static/*"
+          echo "DEPLOYED SUCCESSFULLY"
+
+      - name: Invalidate CloudFront distribution - development
+        if: ${{ contains(github.ref_name, 'development') }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_DEV }} --paths "/assets/*" "/asset-manifest.json" "/favicon.png" "/index.html" "/manifest.json" "/robots.txt" "/static/*"
+          echo "DEPLOYED SUCCESSFULLY"
