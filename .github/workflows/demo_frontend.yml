@@ -29,6 +29,8 @@ jobs:
           npm install
           npm run build
 
+# Checks if the branch name (or ref name) contains the word "development." If the condition is true, the steps defined within the run block will be executed.
+
       # Do we need a branch segregation for this step?
       - name: 'npm install, build, and test - development'
         if: ${{ contains(github.ref_name, 'development') }}
@@ -57,17 +59,18 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
 
-
+# Used to delete the Json folder and its contents within the build directory.
       - name: Exclude JSON folder
         run: |
           rm -rf build/Json/
 
-
-
+# Upload the contents of the build directory to an Amazon S3 bucket when the workflow runs on the "master" branch. 
       - name: Upload to S3 - master
         if: ${{ contains(github.ref_name, 'master') }}
         run: |
           aws s3 sync build s3://${{ secrets.S3_BUCKET_NAME }}
+
+# Upload the contents of the build directory to an Amazon S3 bucket when the workflow runs on the "development" branch. 
 
       - name: Upload to S3 - development
         if: ${{ contains(github.ref_name, 'development') }}
@@ -77,7 +80,7 @@ jobs:
 
 
       - name: Invalidate CloudFront distribution - master
-        if: ${{ contains(github.ref_name, 'master') }}
+        if: ${{ contains(github.ref_name, 'master') }}  
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/assets/*" "/asset-manifest.json" "/favicon.png" "/index.html" "/manifest.json" "/robots.txt" "/static/*"
           echo "DEPLOYED SUCCESSFULLY"
