@@ -29,11 +29,11 @@ jobs:
           npm install
           npm run build
 
-      # Do we need a branch segregation for this step?
+# Do we need a branch segregation for this step?
       - name: 'npm install, build, and test - development'
         if: ${{ contains(github.ref_name, 'development') }}
-        # env:
-        #   CI: false
+        env:
+          CI: false
         run: |
           npm install
           npm run build
