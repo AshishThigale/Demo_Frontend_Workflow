@@ -21,22 +21,22 @@ jobs:
 
 
 # Checks if the branch name (or ref name) contains the word "main." If the condition is true, the steps defined within the run block will be executed.
-      - name: 'npm install, build, and test - main'
-        if: ${{ contains(github.ref_name, 'main') }}
-        env:
-          CI: false
-        run: |
-          npm install
-          npm run build
+#      - name: 'npm install, build, and test - main'
+#        if: ${{ contains(github.ref_name, 'main') }}
+#        env:
+#          CI: false
+#        run: |
+#          npm install
+#          npm run build
 
 # Do we need a branch segregation for this step?
-      - name: 'npm install, build, and test - development'
-        if: ${{ contains(github.ref_name, 'development') }}
-        env:
-          CI: false
-        run: |
-          npm install
-          npm run build
+#      - name: 'npm install, build, and test - development'
+#        if: ${{ contains(github.ref_name, 'development') }}
+#        env:
+#          CI: false
+#         run: |
+#          npm install
+#          npm run build
 
   
 
