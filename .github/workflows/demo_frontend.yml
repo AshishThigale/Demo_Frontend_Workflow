@@ -56,6 +56,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY_DEV }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: List Files in Working Directory
+        run: ls -la
+
+      - name: List Files in "build" Directory
+        run: ls -la build
 
 
       # - name: Exclude JSON folder
