@@ -7,6 +7,18 @@ on:
       - "development"
    
 jobs:
+  create-build-directory:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Create Build Directory
+        run: mkdir build
+
+      - name: List Files in Working Directory
+        run: ls -la
   algofabric-dashboard:
     runs-on: ubuntu-latest
   # Allows the workflow to access the source code in the repository. 
