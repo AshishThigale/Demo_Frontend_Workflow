@@ -58,9 +58,9 @@ jobs:
 
 
 
-      - name: Exclude JSON folder
-        run: |
-          rm -rf build/Json/
+      # - name: Exclude JSON folder
+      #   run: |
+      #     rm -rf build/Json/
 
 
 
