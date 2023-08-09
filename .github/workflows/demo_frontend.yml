@@ -77,12 +77,14 @@ jobs:
 
       - name: Invalidate CloudFront distribution - main
         if: ${{ contains(github.ref_name, 'main') }}
-        run: |
+        run: 
+          aws configure set preview.cloudfront true|
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/index.html" "/error.html" "/styles.css"
           echo "DEPLOYED SUCCESSFULLY"
 
       - name: Invalidate CloudFront distribution - development
         if: ${{ contains(github.ref_name, 'development') }}
         run: |
+          aws configure set preview.cloudfront true
           aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_DEV }} --paths "/index.html" "/error.html" "/styles.css"
           echo "DEPLOYED SUCCESSFULLY"
