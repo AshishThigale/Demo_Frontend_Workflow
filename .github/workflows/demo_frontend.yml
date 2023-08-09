@@ -7,18 +7,6 @@ on:
       - "development"
    
 jobs:
-  create-build-directory:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Create Build Directory
-        run: mkdir build
-
-      - name: List Files in Working Directory
-        run: ls -la
   algofabric-dashboard:
     runs-on: ubuntu-latest
   # Allows the workflow to access the source code in the repository. 
@@ -81,9 +69,15 @@ jobs:
 
 
 
-      - name: Upload to S3
+      - name: Upload to S3 - main
+        if: ${{ contains(github.ref_name, 'main') }}
         run: |
-          aws s3 sync build s3://${{ secrets.S3_BUCKET_NAME_DEV }}
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }}
+
+      - name: Upload to S3 - development
+        if: ${{ contains(github.ref_name, 'development') }}
+        run: |
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME_DEV }}
           
 
 
